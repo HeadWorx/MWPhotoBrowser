@@ -665,6 +665,10 @@
         [self.view setNeedsLayout];
     }
     
+    if (_gridController) {
+        [_gridController reloadCollectionView];
+    }
+    
 }
 
 - (NSUInteger)numberOfPhotos {

@@ -148,6 +148,10 @@
 
 #pragma mark - Collection View
 
+-(void)reloadCollectionView {
+    [self.collectionView reloadData];
+}
+
 - (NSInteger)collectionView:(UICollectionView *)view numberOfItemsInSection:(NSInteger)section {
     return [_browser numberOfPhotos];
 }
@@ -201,5 +205,7 @@
     CGFloat margin = [self getMargin];
     return UIEdgeInsetsMake(margin, margin, margin, margin);
 }
+
+
 
 @end

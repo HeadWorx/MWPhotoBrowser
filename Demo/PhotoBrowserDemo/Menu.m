@@ -1156,6 +1156,7 @@
 - (void)photoBrowserDidClickOnAddActionButton:(MWPhotoBrowser *)photoBrowser {
     // method to add new pics
     NSLog(@"Did tap addActionButton");
+    [photoBrowser reloadData];
 }
 
 #pragma mark - Load Assets
