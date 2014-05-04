@@ -66,6 +66,7 @@
     _currentPageIndex = 0;
     _previousPageIndex = NSUIntegerMax;
     _displayActionButton = YES;
+    _displayAddActionButton = YES;
     _displayNavArrows = NO;
     _zoomPhotosToFill = YES;
     _performingLayout = NO; // Reset on view did appear
@@ -187,6 +188,9 @@
     if (self.displayActionButton) {
         _actionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(actionButtonPressed:)];
     }
+    if (self.displayAddActionButton) {
+        _addActionButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addActionButtonPressed:)];
+    }
     
     // Update
     [self reloadData];
@@ -227,6 +231,7 @@
             [_doneButton setTitleTextAttributes:[NSDictionary dictionary] forState:UIControlStateHighlighted];
         }
         self.navigationItem.rightBarButtonItem = _doneButton;
+        
     } else {
         // We're not first so show back button
         UIViewController *previousViewController = [self.navigationController.viewControllers objectAtIndex:self.navigationController.viewControllers.count-2];
@@ -276,11 +281,30 @@
 
     // Right - Action
     if (_actionButton && !(!hasItems && !self.navigationItem.rightBarButtonItem)) {
+        if(_addActionButton) {
+            if([self.navigationController.viewControllers objectAtIndex:0] == self)
+                self.navigationItem.leftBarButtonItem = _addActionButton;
+            else
+                self.navigationItem.rightBarButtonItem = _addActionButton;
+        }
+        
         [items addObject:_actionButton];
     } else {
         // We're not showing the toolbar so try and show in top right
-        if (_actionButton)
-            self.navigationItem.rightBarButtonItem = _actionButton;
+        if (_actionButton) {
+            if(!_addActionButton)
+                self.navigationItem.rightBarButtonItem = _actionButton;
+            else {
+                NSArray *arrayRightBtns = [[NSArray alloc] initWithObjects:_addActionButton, _actionButton, nil];
+                self.navigationItem.rightBarButtonItems = arrayRightBtns;
+            }
+        } else if(_addActionButton){
+            if([self.navigationController.viewControllers objectAtIndex:0] == self)
+                self.navigationItem.leftBarButtonItem = _addActionButton;
+            else
+                self.navigationItem.rightBarButtonItem = _addActionButton;
+        }
+        
         [items addObject:fixedSpace];
     }
 
@@ -317,6 +341,7 @@
     _recycledPages = nil;
     _toolbar = nil;
     _previousButton = nil;
+    _addActionButton = nil;
     _nextButton = nil;
     _progressHUD = nil;
     [super viewDidUnload];
@@ -1196,6 +1221,10 @@
         [self.navigationItem setRightBarButtonItem:_gridPreviousRightNavItem animated:YES];
     }
     
+    if (_gridPreviousRightNavItem == _addActionButton && _addActionButton) {
+        [self.navigationItem setRightBarButtonItem:_gridPreviousRightNavItem animated:YES];
+    }
+    
     // Position prior to hide animation
     CGRect newPagingFrame = [self frameForPagingScrollView];
     newPagingFrame = CGRectOffset(newPagingFrame, 0, (self.startOnGrid ? 1 : -1) * newPagingFrame.size.height);
@@ -1448,6 +1477,18 @@
 }
 
 #pragma mark - Actions
+- (void)addActionButtonPressed:(id)sender {
+    // Add Action
+    if ([_delegate respondsToSelector:@selector(photoBrowserDidClickOnAddActionButton:)]) {
+        [_delegate photoBrowserDidClickOnAddActionButton:self];
+    } else  {
+        NSLog(@"Delegate Method photoBrowserDidClickOnAddActionButton not implemented");
+    }
+}
+
+- (void)deleteActionButtonPressed:(id)sender {
+    // TODO
+}
 
 - (void)actionButtonPressed:(id)sender {
     if (_actionsSheet) {

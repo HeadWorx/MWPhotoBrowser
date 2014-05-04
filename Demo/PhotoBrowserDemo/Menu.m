@@ -164,6 +164,7 @@
 	NSMutableArray *thumbs = [[NSMutableArray alloc] init];
     MWPhoto *photo;
     BOOL displayActionButton = YES;
+    BOOL displayAddActionButton = YES;
     BOOL displaySelectionButtons = NO;
     BOOL displayNavArrows = NO;
     BOOL enableGrid = YES;
@@ -1039,6 +1040,7 @@
     browser.displayNavArrows = displayNavArrows;
     browser.displaySelectionButtons = displaySelectionButtons;
     browser.alwaysShowControls = displaySelectionButtons;
+    browser.displayAddActionButton = displayAddActionButton;
     browser.zoomPhotosToFill = YES;
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_7_0
     browser.wantsFullScreenLayout = YES;
@@ -1149,6 +1151,11 @@
     // If we subscribe to this method we must dismiss the view controller ourselves
     NSLog(@"Did finish modal presentation");
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)photoBrowserDidClickOnAddActionButton:(MWPhotoBrowser *)photoBrowser {
+    // method to add new pics
+    NSLog(@"Did tap addActionButton");
 }
 
 #pragma mark - Load Assets
