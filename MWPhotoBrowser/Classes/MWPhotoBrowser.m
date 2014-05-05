@@ -73,6 +73,7 @@
     _rotating = NO;
     _viewIsActive = NO;
     _enableGrid = YES;
+    _enableAddActionButtonOnlyOnGrid = YES;
     _startOnGrid = NO;
     _enableSwipeToDismiss = YES;
     _delayToHideElements = 5;
@@ -282,10 +283,14 @@
     // Right - Action
     if (_actionButton && !(!hasItems && !self.navigationItem.rightBarButtonItem)) {
         if(_addActionButton) {
-            if([self.navigationController.viewControllers objectAtIndex:0] == self)
+            if([self.navigationController.viewControllers objectAtIndex:0] == self && (!_enableAddActionButtonOnlyOnGrid || _enableGrid))
                 self.navigationItem.leftBarButtonItem = _addActionButton;
-            else
-                self.navigationItem.rightBarButtonItem = _addActionButton;
+            else if(!_enableAddActionButtonOnlyOnGrid || _enableGrid) {
+                if (_startOnGrid)
+                    self.navigationItem.rightBarButtonItem = _addActionButton;
+                else
+                    _gridPreviousRightNavItem = _addActionButton;
+            }
         }
         
         [items addObject:_actionButton];
@@ -294,14 +299,15 @@
         if (_actionButton) {
             if(!_addActionButton)
                 self.navigationItem.rightBarButtonItem = _actionButton;
-            else {
+            else if(!_enableAddActionButtonOnlyOnGrid) {
                 NSArray *arrayRightBtns = [[NSArray alloc] initWithObjects:_addActionButton, _actionButton, nil];
                 self.navigationItem.rightBarButtonItems = arrayRightBtns;
-            }
+            } else
+                self.navigationItem.rightBarButtonItem = _actionButton;
         } else if(_addActionButton){
-            if([self.navigationController.viewControllers objectAtIndex:0] == self)
+            if([self.navigationController.viewControllers objectAtIndex:0] == self && (!_enableAddActionButtonOnlyOnGrid || _enableGrid))
                 self.navigationItem.leftBarButtonItem = _addActionButton;
-            else
+            else if(!_enableAddActionButtonOnlyOnGrid || _enableGrid)
                 self.navigationItem.rightBarButtonItem = _addActionButton;
         }
         
@@ -667,8 +673,9 @@
     
     if (_gridController) {
         [_gridController reloadCollectionView];
+        _toolbar.alpha = 0;
     }
-    
+
 }
 
 - (NSUInteger)numberOfPhotos {
@@ -1190,9 +1197,13 @@
     [self.view addSubview:_gridController.view];
     
     // Hide action button on nav bar if it exists
-    if (self.navigationItem.rightBarButtonItem == _actionButton) {
+    if (_actionButton && self.navigationItem.rightBarButtonItem == _actionButton) {
         _gridPreviousRightNavItem = _actionButton;
         [self.navigationItem setRightBarButtonItem:nil animated:YES];
+    } if (_gridPreviousRightNavItem == _addActionButton) {
+        [self.navigationItem setRightBarButtonItem:_gridPreviousRightNavItem animated:YES];
+    } if (self.navigationItem.rightBarButtonItem == _addActionButton) {
+        _gridPreviousRightNavItem = _addActionButton;
     } else {
         _gridPreviousRightNavItem = nil;
     }
@@ -1225,8 +1236,11 @@
         [self.navigationItem setRightBarButtonItem:_gridPreviousRightNavItem animated:YES];
     }
     
-    if (_gridPreviousRightNavItem == _addActionButton && _addActionButton) {
-        [self.navigationItem setRightBarButtonItem:_gridPreviousRightNavItem animated:YES];
+    if (self.navigationItem.rightBarButtonItem == _addActionButton && _addActionButton) {
+        _gridPreviousRightNavItem = _addActionButton;
+        
+        if (_enableAddActionButtonOnlyOnGrid)
+            [self.navigationItem setRightBarButtonItem:nil animated:YES];
     }
     
     // Position prior to hide animation

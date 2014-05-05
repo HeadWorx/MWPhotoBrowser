@@ -1041,6 +1041,7 @@
     browser.displaySelectionButtons = displaySelectionButtons;
     browser.alwaysShowControls = displaySelectionButtons;
     browser.displayAddActionButton = displayAddActionButton;
+    browser.enableAddActionButtonOnlyOnGrid = YES;
     browser.zoomPhotosToFill = YES;
 #if __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_7_0
     browser.wantsFullScreenLayout = YES;
